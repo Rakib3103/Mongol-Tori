@@ -1,0 +1,125 @@
+#include <ros.h>
+#include <std_msgs/Char.h>
+
+// ARM
+const int ACT_1_up = 1;
+const int ACT_1_down = 2;
+
+const int ACT_2_up = 3;
+const int ACT_2_down = 4;
+
+const int ACT_3_up = 5;
+const int ACT_3_down = 6;
+
+const int BASE_left = 7;
+const int BASE_right = 8;
+
+const int CLAW_open = 9;
+const int CLAW_close = 10;
+
+const int WRIST_left = 11;
+const int WRIST_right = 12;
+
+// WHEEL
+const int WH_forward = 13;
+const int WH_backward = 14;
+
+const int WH_left = 15;
+const int WH_right = 16;
+
+ros::NodeHandle nh;
+
+// Define the ROS topics
+std_msgs::Char key_msg;
+ros::Publisher key_pub("keys", &key_msg);
+
+void setup() {
+  // Initialize the ROS node and publisher
+  nh.initNode();
+  nh.advertise(key_pub);
+
+  // Set the pin modes
+  pinMode(ACT_1_up, OUTPUT);
+  pinMode(ACT_1_down, OUTPUT);
+  pinMode(ACT_2_up, OUTPUT);
+  pinMode(ACT_2_down, OUTPUT);
+  pinMode(BASE_left, OUTPUT);
+  pinMode(BASE_right, OUTPUT);
+  pinMode(CLAW_open, OUTPUT);
+  pinMode(CLAW_close, OUTPUT);
+  pinMode(WRIST_left, OUTPUT);
+  pinMode(WRIST_right, OUTPUT);
+  pinMode(WH_forward, OUTPUT);
+  pinMode(WH_backward, OUTPUT);
+  pinMode(WH_left, OUTPUT);
+  pinMode(WH_right, OUTPUT);
+}
+
+void loop() {
+  // Check for incoming messages on the "keys" topic
+  while (nh.connected() && nh.spinOnce()) {
+    // If a message is received, read the value and perform the corresponding action
+    char val = key_msg.data;
+
+    if (val == 'r') {
+      digitalWrite(ACT_1_up, HIGH);
+      digitalWrite(ACT_1_down, LOW);
+    }
+    else if (val == 'f') {
+      digitalWrite(ACT_1_up, LOW);
+      digitalWrite(ACT_1_down, HIGH);
+    }
+    else if (val == 't') {
+      digitalWrite(ACT_2_up, HIGH);
+      digitalWrite(ACT_2_down, LOW);
+    }
+    else if (val == 'g') {
+      digitalWrite(ACT_2_up, LOW);
+      digitalWrite(ACT_2_down, HIGH);
+    }
+    else if (val == 'v') {
+      digitalWrite(BASE_left, HIGH);
+      digitalWrite(BASE_right, LOW);
+    }
+    else if (val == 'b') {
+      digitalWrite(BASE_left, LOW);
+      digitalWrite(BASE_right, HIGH);
+    }
+    else if (val == 'm') {
+      digitalWrite(WRIST_left, HIGH);
+      digitalWrite(WRIST_right, LOW);
+    }
+    else if (val == 'n') {
+      digitalWrite(WRIST_left, LOW);
+      digitalWrite(WRIST_right, HIGH);
+    }
+    else if (val == 'w') {
+      digitalWrite(WH_forward, HIGH);
+      digitalWrite(WH_backward, LOW);
+    }
+    else if (val == 'a') {
+      digitalWrite(WH_left, LOW);
+      digitalWrite(WH_right, HIGH);
+    }
+    else if (val == 's') {
+      digitalWrite(WH_forward, LOW);
+      digitalWrite(WH_backward, HIGH);
+    }
+    else if (val == 'd') {
+      digitalWrite(WH_left, HIGH);
+      digitalWrite(WH_right, LOW);
+    }
+  }
+}
+
+void publishKey(char key) {
+  key_msg.data = key;
+  key_pub.publish(&key_msg);
+}
+
+void serialEvent() {
+  while (Serial.available()) {
+    char val = Serial.read();
+    publishKey(val);
+  }
+}
